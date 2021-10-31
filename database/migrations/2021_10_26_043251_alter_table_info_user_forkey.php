@@ -29,7 +29,7 @@ class AlterTableInfoUserForkey extends Migration
     public function down()
     {
         Schema::table('info_users', function (Blueprint $table) {
-            //
+            $table->dropForeign(['user_id']);
         });
     }
 }
