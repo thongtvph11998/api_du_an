@@ -2,82 +2,86 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Blog\BlogUpdateRequest;
+use App\Http\Requests\Blog\BlogStoreRequest;
+use App\Http\Transforms\ApiTransform;
 use App\Models\Blog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Validator;
+
 
 class BlogController extends Controller
 {
-    public function index(){
-        $blog=Blog::all();
+    public function index(Request $request){
+        $keyword=$request->input('keyword');
+        $sort=$request->input('sort');
+
+        $query=DB::table('blogs');
+        if($keyword){
+            $query=$query->where('title','like','%'.$keyword.'%');
+        }
+        if($sort){
+            $query=$query->orderBy('created_at',$sort);
+        }
+        $blog=$query->get();
         return response()->json([
                 'success'=>true,
                 'data'=>$blog
             ]);
     }
-    public function store(Request $request){
-        $validator=Validator::make($request->all(),[
-            'title'=>'required|min:2|unique:blogs,title',
-            'image'=>'required|mimes:jpeg,jpg,png,gif|max:500',
-            'content'=>'required|min:10'
-        ]);
-        if($validator->fails()){
-            return response()->json(['errors'=>$validator->errors()]);
-        }
-        $model = new Blog();
-        $model->fill($request->all());
-        if ($request->hasFile('image')) {
-            $newFileName =uniqid() . '-' . $request->image->getClientOriginalName();
-            $path = $request->image->storeAs(date('Y').'/'.date('m').'' , $newFileName);
-            $model->image = str_replace('public/', '', $path);
-        }
-        $model->save();
-        return response()->json([
-            'success'=>true,
-            'data'=>$model,
-        ]);
+    public function store(BlogStoreRequest $request){
+        try {
+            $model = new Blog();
+            $model->fill($request->all());
+            if ($request->hasFile('image')) {
+                $newFileName =uniqid() . '-' . $request->image->getClientOriginalName();
+                $path = $request->image->storeAs(date('Y').'/'.date('m').'' , $newFileName);
+                $model->image = str_replace('public/', '', $path);
+            }
+            $model->save();
 
+            return ApiTransform::ok($model);
+        } catch (\Exception $exception) {
+            return ApiTransform::internalServerErrorException($exception);
+        }
     }
-    public function show(Blog $blog){
-        return response()->json([
-                    'success'=>true,
-                    'data'=>$blog
-                ]);
+    public function show($id){
+        try {
+            $blog = Blog::query()->find($id);
+            if (!$blog) {
+                return ApiTransform::notFoundException('Blog not found');
+            }
+            return ApiTransform::ok($blog);
+        } catch (\Exception $exception) {
+            return ApiTransform::internalServerErrorException($exception);
+        }
     }
 
-    public function update(Request $request, Blog $blog){
+    public function update(BlogUpdateRequest $request, $id){
+        try {
+            $blog=Blog::query()->find($id);
+            if ($request->hasFile('image')) {
+                $newFileName =uniqid() . '-' . $request->image->getClientOriginalName();
+                $path = $request->image->storeAs(date('Y').'/'.date('m').'', $newFileName);
+                $blog->image = str_replace('public/', '', $path);
+            }
+            $blog->save();
+            return ApiTransform::ok($blog);
 
-        $validator=Validator::make($request->all(),[
-            'title'=>'required|min:2',
-            'image'=>'required|mimes:jpeg,jpg,png,gif|max:500',
-            'content'=>'required|min:10'
-        ]);
-        if($validator->fails()){
-            return response()->json(['errors'=>$validator->errors()]);
+        }catch (\Exception $exception){
+            return ApiTransform::internalServerErrorException($exception);
         }
-        $blog->fill($request->all());
-        if ($request->hasFile('image')) {
-            $newFileName =uniqid() . '-' . $request->image->getClientOriginalName();
-            $path = $request->image->storeAs(date('Y').'/'.date('m').'', $newFileName);
-            $blog->image = str_replace('public/', '', $path);
-        }
-        $blog->save();
-        return response()->json([
-                'success'=>true,
-                'data'=>$blog
-            ]);
     }
-    public function destroy(Blog $blog){
+    public function destroy($id){
+
+        $blog=Blog::query()->find($id);
         $image_path='uploads/'.$blog->image;
         if(file_exists($image_path)){
             File::delete($image_path);
         }
         $blog->delete();
-         return response()->json([
-             'success'=>true,
-             'data'=>$blog
-         ]);
+        return ApiTransform::ok($blog);
 
 
     }

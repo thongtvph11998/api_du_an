@@ -4,13 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\InforUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class InforUserController extends Controller
 {
-      public function index()
+      public function index(Request $request)
     {
-        $infor=InforUser::all();
+        $keyword=$request->input('keyword');
+        $sort=$request->input('sort');
+        $gender=$request->input('gender');
+        $query=DB::table('infor_users');
+        if($keyword){
+            $query=$query->where('address','like','%'.$keyword.'%');
+        }
+        if($sort){
+            $query=$query->orderBy('created_at',$sort);
+        }
+        if($gender){
+            $query=$query->where('gender','=',$gender);
+        }
+        $infor=$query->get();
         return response()->json([
                 'success'=>true,
                 'data'=>$infor

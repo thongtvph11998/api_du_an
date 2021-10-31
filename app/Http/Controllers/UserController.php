@@ -4,14 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-     public function index()
+     public function index(Request $request)
     {
-        $users=user::all();
+        $keyword=$request->input('keyword');
+        $sort=$request->input('sort');
+        $query=DB::table('users');
+        if($keyword){
+            $query=$query->where('user_name','like','%'.$keyword.'%');
+        }
+        if($sort){
+            $query=$query->orderBy('created_at',$sort);
+        }
+
+       $users=$query->get();
         return response()->json([
                 'success'=>true,
                 'data'=>$users

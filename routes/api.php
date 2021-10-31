@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterControler;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\InforUserController;
 use App\Http\Controllers\ProductController;
@@ -31,9 +33,9 @@ Route::prefix('product')->group(function(){
 Route::prefix('blog')->group(function () {
     Route::get('',[BlogController::class,'index']);
     Route::post('store',[BlogController::class,'store']);
-    Route::put('update/{blog}',[BlogController::class,'update']);
-    Route::delete('delete/{blog}',[BlogController::class,'destroy']);
-    Route::get('{blog}',[BlogController::class,'show']);
+    Route::put('update/{id}',[BlogController::class,'update']);
+    Route::delete('delete/{id}',[BlogController::class,'destroy']);
+    Route::get('{id}',[BlogController::class,'show']);
 });
 Route::prefix('user')->group(function () {
     Route::get('',[UserController::class,'index']);
@@ -49,3 +51,8 @@ Route::prefix('inforuser')->group(function () {
     Route::delete('delete/{infor}',[InforUserController::class,'destroy']);
     Route::get('{infor}',[InforUserController::class,'show']);
 });
+
+//// Register Login Logout
+Route::post('register',[RegisterControler::class,'store']);
+Route::post('login',[LoginController::class,'login']);
+Route::get('logout',[LoginController::class,'logout']);
