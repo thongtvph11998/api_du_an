@@ -34,7 +34,8 @@ class AlterTableCommentForkey extends Migration
     public function down()
     {
         Schema::table('comments', function (Blueprint $table) {
-            //
+            $table->dropForeign(['pro_id']);
+            $table->dropForeign(['user_id' ]);
         });
     }
 }
