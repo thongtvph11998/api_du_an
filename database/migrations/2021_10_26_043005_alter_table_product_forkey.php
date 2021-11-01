@@ -29,7 +29,11 @@ class AlterTableProductForkey extends Migration
     public function down()
     {
         Schema::table('products', function (Blueprint $table) {
+<<<<<<< HEAD
+           $table->dropForeign(['cate_id']);
+=======
             $table->dropForeign(['cate_id']);
+>>>>>>> master
         });
     }
 }

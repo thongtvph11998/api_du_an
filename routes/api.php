@@ -1,6 +1,11 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterControler;
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\InforUserController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -41,3 +46,29 @@ Route::prefix('product')->group(function () {
     Route::options('backup-all',[ProductController::class,'backupAll']);
 
 });
+Route::prefix('blog')->group(function () {
+    Route::get('',[BlogController::class,'index']);
+    Route::post('store',[BlogController::class,'store']);
+    Route::put('update/{id}',[BlogController::class,'update']);
+    Route::delete('delete/{id}',[BlogController::class,'destroy']);
+    Route::get('{id}',[BlogController::class,'show']);
+});
+Route::prefix('user')->group(function () {
+    Route::get('',[UserController::class,'index']);
+    Route::post('store',[UserController::class,'store']);
+    Route::put('update/{user}',[UserController::class,'update']);
+    Route::delete('delete/{user}',[UserController::class,'destroy']);
+    Route::get('{user}',[UserController::class,'show']);
+});
+Route::prefix('inforuser')->group(function () {
+    Route::get('',[InforUserController::class,'index']);
+    Route::post('store',[InforUserController::class,'store']);
+    Route::put('update/{infor}',[InforUserController::class,'update']);
+    Route::delete('delete/{infor}',[InforUserController::class,'destroy']);
+    Route::get('{infor}',[InforUserController::class,'show']);
+});
+
+//// Register Login Logout
+Route::post('register',[RegisterControler::class,'store']);
+Route::post('login',[LoginController::class,'login']);
+Route::get('logout',[LoginController::class,'logout']);

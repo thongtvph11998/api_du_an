@@ -5,14 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Blog extends Model
+class InforUser extends Model
 {
     use HasFactory;
-    protected $table='blogs';
+     protected $table='infor_users';
     protected $primarykey='id';
     protected $fillable=[
-        'title',
-        'image',
-        'content'
+        'user_id',
+        'pro_id',
+        'phone',
+        'address',
+        'birthday',
+        'gender',
     ];
 }
